@@ -26,13 +26,23 @@ define glusterfs::server::config(
 	}
 	
 	file { "glusterfs_server_${name}":
-		name => "/etc/glusterfs/glusterfsd.vol",
-		owner => root,
-		group => root,
-		mode => 644,
+		name    => "/etc/glusterfs/glusterfsd.vol",
+		owner   => root,
+		group   => root,
+		mode    => 0644,
 		content => template("glusterfs/server.config.erb"),
-		notify => Service["glusterfs-server"],
+		notify  => Service["glusterfs-server"],
 		require => [ Package["glusterfs-server"], File["${datapath}"] ],
 	}
+
+    @@file { "/etc/glusterfs/${name}/${fqdn}":
+        ensure  => file,
+        owner   => root,
+        group   => root,
+        mode    => 0644,
+        content => "${ipaddress}
+",
+        tag     => "${name}-gluster-client",
+    }
 
 }
